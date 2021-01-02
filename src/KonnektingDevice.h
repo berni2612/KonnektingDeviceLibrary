@@ -40,6 +40,8 @@
 #endif
 #endif
 
+#define WRITEMEM
+
 #define EEPROM_DEVICE_FLAGS          0  ///< EEPROM index for device flags
 #define EEPROM_INDIVIDUALADDRESS_HI  1  ///< EEPROM index for IA, high byte
 #define EEPROM_INDIVIDUALADDRESS_LO  2  ///< EEPROM index for IA, low byte
