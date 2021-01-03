@@ -63,6 +63,8 @@
 KonnektingDevice KonnektingDevice::Konnekting;
 KonnektingDevice &Konnekting = KonnektingDevice::Konnekting;
 
+static byte _response[14];
+
 /**
  * Intercepting knx events to process internal com objects
  * @param index
@@ -668,18 +670,17 @@ bool KonnektingDevice::internalKnxEvents(byte index)
 void KonnektingDevice::sendAck(byte errorcode, int indexinformation)
 {
     DEBUG_PRINTLN(F("sendAck errorcode=0x%02x indexInformation=0x%04x"), errorcode, indexinformation);
-    byte response[14];
-    response[0] = PROTOCOLVERSION;
-    response[1] = MSGTYPE_ACK;
-    response[2] = (errorcode == 0x00 ? 0x00 : 0xFF);
-    response[3] = errorcode;
-    response[4] = (indexinformation >> 8) & 0xff;
-    response[5] = (indexinformation >> 0) & 0xff;
+    _response[0] = PROTOCOLVERSION;
+    _response[1] = MSGTYPE_ACK;
+    _response[2] = (errorcode == 0x00 ? 0x00 : 0xFF);
+    _response[3] = errorcode;
+    _response[4] = (indexinformation >> 8) & 0xff;
+    _response[5] = (indexinformation >> 0) & 0xff;
     for (byte i = 6; i < 14; i++)
     {
-        response[i] = 0x00;
+        _response[i] = 0x00;
     }
-    Knx.write(PROGCOMOBJ_INDEX, response);
+    Knx.write(PROGCOMOBJ_INDEX, _response);
 }
 
 void KonnektingDevice::handleMsgReadDeviceInfo(byte msg[])
@@ -688,22 +689,21 @@ void KonnektingDevice::handleMsgReadDeviceInfo(byte msg[])
 
     if (isMatchingIA(msg[2], msg[3]))
     {
-        byte response[14];
-        response[0] = PROTOCOLVERSION;
-        response[1] = MSGTYPE_ANSWER_DEVICE_INFO;
-        response[2] = (_manufacturerID >> 8) & 0xff;
-        response[3] = (_manufacturerID >> 0) & 0xff;
-        response[4] = _deviceID;
-        response[5] = _revisionID;
-        response[6] = _deviceFlags;
-        response[7] = (_individualAddress >> 8) & 0xff;
-        response[8] = (_individualAddress >> 0) & 0xff;
-        response[9] = 0x00;
-        response[10] = 0x00;
-        response[11] = 0x00;
-        response[12] = 0x00;
-        response[13] = 0x00;
-        Knx.write(PROGCOMOBJ_INDEX, response);
+        _response[0] = PROTOCOLVERSION;
+        _response[1] = MSGTYPE_ANSWER_DEVICE_INFO;
+        _response[2] = (_manufacturerID >> 8) & 0xff;
+        _response[3] = (_manufacturerID >> 0) & 0xff;
+        _response[4] = _deviceID;
+        _response[5] = _revisionID;
+        _response[6] = _deviceFlags;
+        _response[7] = (_individualAddress >> 8) & 0xff;
+        _response[8] = (_individualAddress >> 0) & 0xff;
+        _response[9] = 0x00;
+        _response[10] = 0x00;
+        _response[11] = 0x00;
+        _response[12] = 0x00;
+        _response[13] = 0x00;
+        Knx.write(PROGCOMOBJ_INDEX, _response);
     }
     else
     {
@@ -770,22 +770,21 @@ void KonnektingDevice::handleMsgReadProgrammingMode(byte /*msg*/[])
     DEBUG_PRINTLN(F("handleMsgReadProgrammingMode"));
     if (_progState)
     {
-        byte response[14];
-        response[0] = PROTOCOLVERSION;
-        response[1] = MSGTYPE_ANSWER_PROGRAMMING_MODE;
-        response[2] = (_individualAddress >> 8) & 0xff;
-        response[3] = (_individualAddress >> 0) & 0xff;
-        response[4] = 0x00;
-        response[5] = 0x00;
-        response[6] = 0x00;
-        response[7] = 0x00;
-        response[8] = 0x00;
-        response[9] = 0x00;
-        response[10] = 0x00;
-        response[11] = 0x00;
-        response[12] = 0x00;
-        response[13] = 0x00;
-        Knx.write(PROGCOMOBJ_INDEX, response);
+        _response[0] = PROTOCOLVERSION;
+        _response[1] = MSGTYPE_ANSWER_PROGRAMMING_MODE;
+        _response[2] = (_individualAddress >> 8) & 0xff;
+        _response[3] = (_individualAddress >> 0) & 0xff;
+        _response[4] = 0x00;
+        _response[5] = 0x00;
+        _response[6] = 0x00;
+        _response[7] = 0x00;
+        _response[8] = 0x00;
+        _response[9] = 0x00;
+        _response[10] = 0x00;
+        _response[11] = 0x00;
+        _response[12] = 0x00;
+        _response[13] = 0x00;
+        Knx.write(PROGCOMOBJ_INDEX, _response);
     }
 }
 
@@ -812,22 +811,21 @@ void KonnektingDevice::handleMsgReadIndividualAddress(byte /*msg*/[])
 {
     // to suppress compiler warning about unused variable, "msg" has been commented out
     DEBUG_PRINTLN(F("handleMsgReadIndividualAddress"));
-    byte response[14];
-    response[0] = PROTOCOLVERSION;
-    response[1] = MSGTYPE_ANSWER_INDIVIDUAL_ADDRESS;
-    response[2] = (_individualAddress >> 8) & 0xff;
-    response[3] = (_individualAddress >> 0) & 0xff;
-    response[4] = 0x00;
-    response[5] = 0x00;
-    response[6] = 0x00;
-    response[7] = 0x00;
-    response[8] = 0x00;
-    response[9] = 0x00;
-    response[10] = 0x00;
-    response[11] = 0x00;
-    response[12] = 0x00;
-    response[13] = 0x00;
-    Knx.write(PROGCOMOBJ_INDEX, response);
+    _response[0] = PROTOCOLVERSION;
+    _response[1] = MSGTYPE_ANSWER_INDIVIDUAL_ADDRESS;
+    _response[2] = (_individualAddress >> 8) & 0xff;
+    _response[3] = (_individualAddress >> 0) & 0xff;
+    _response[4] = 0x00;
+    _response[5] = 0x00;
+    _response[6] = 0x00;
+    _response[7] = 0x00;
+    _response[8] = 0x00;
+    _response[9] = 0x00;
+    _response[10] = 0x00;
+    _response[11] = 0x00;
+    _response[12] = 0x00;
+    _response[13] = 0x00;
+    Knx.write(PROGCOMOBJ_INDEX, _response);
 }
 
 void KonnektingDevice::handleMsgWriteParameter(byte msg[])
@@ -872,24 +870,23 @@ void KonnektingDevice::handleMsgReadParameter(byte msg[])
     byte paramValue[paramSize];
     getParamValue(index, paramValue);
 
-    byte response[14];
-    response[0] = PROTOCOLVERSION;
-    response[1] = MSGTYPE_ANSWER_PARAMETER;
-    response[2] = index;
+    _response[0] = PROTOCOLVERSION;
+    _response[1] = MSGTYPE_ANSWER_PARAMETER;
+    _response[2] = index;
 
     // fill in param value
     for (byte i = 0; i < paramSize; i++)
     {
-        response[3 + i] = paramValue[i];
+        _response[3 + i] = paramValue[i];
     }
 
     // fill rest with 0x00
     for (byte i = 0; i < 11 /* max param length */ - paramSize; i++)
     {
-        response[3 + paramSize + i] = 0;
+        _response[3 + paramSize + i] = 0;
     }
 
-    Knx.write(PROGCOMOBJ_INDEX, response);
+    Knx.write(PROGCOMOBJ_INDEX, _response);
 }
 
 void KonnektingDevice::handleMsgWriteComObject(byte msg[])
@@ -944,21 +941,20 @@ void KonnektingDevice::handleMsgReadComObject(byte msg[])
 
     word ga = Knx.getComObjectAddress(comObjId);
 
-    byte response[14];
-    response[0] = PROTOCOLVERSION;
-    response[1] = MSGTYPE_ANSWER_COM_OBJECT;
-    response[2] = comObjId;
-    response[3] = (ga >> 8) & 0xff; // GA Hi
-    response[4] = (ga >> 0) & 0xff; // GA Lo
-    response[5] = 0x00;             // Settings
+    _response[0] = PROTOCOLVERSION;
+    _response[1] = MSGTYPE_ANSWER_COM_OBJECT;
+    _response[2] = comObjId;
+    _response[3] = (ga >> 8) & 0xff; // GA Hi
+    _response[4] = (ga >> 0) & 0xff; // GA Lo
+    _response[5] = 0x00;             // Settings
 
     // fill rest with 0x00
     for (byte i = 6; i < 13; i++)
     {
-        response[i] = 0;
+        _response[i] = 0;
     }
 
-    Knx.write(PROGCOMOBJ_INDEX, response);
+    Knx.write(PROGCOMOBJ_INDEX, _response);
 }
 
 int KonnektingDevice::memoryRead(int index)
