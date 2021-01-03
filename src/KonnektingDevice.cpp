@@ -581,7 +581,7 @@ bool KonnektingDevice::internalKnxEvents(byte index)
     bool consumed = false;
     switch (index)
     {
-    case 255: // prog com object index 255 has been updated
+    case PROGCOMOBJ_INDEX: // prog com object index 255 has been updated
 
         byte buffer[14];
         Knx.read(PROGCOMOBJ_INDEX, buffer);

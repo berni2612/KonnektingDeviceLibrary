@@ -369,6 +369,8 @@ void KnxTpUart::RXTask(void)
         incomingByte = (byte)(_serial.read());
         lastByteRxTimeMillis = (word)millis();
 
+        DEBUG_PRINTLN(F("RX State: %d"), _rx.state);
+
         switch (_rx.state)
         {
 
@@ -442,18 +444,19 @@ void KnxTpUart::RXTask(void)
             telegram.WriteRawByte(incomingByte, readBytesNb);
             readBytesNb++;
 
-            //we should try to comment out this check, because we can send telegrams that should be received by own self
-            if (readBytesNb == 3)
-            { // We have just received the source address
-                // we check whether the received KNX telegram is coming from us (i.e. telegram is sent by the TPUART itself)
-                //                    DEBUG_PRINTLN(F("SourceAddress: %d.%d.%d"), (telegram.GetSourceAddress() >> 12), (telegram.GetSourceAddress() >> 8) & 0x0F, telegram.GetSourceAddress() & 0xFF);
-                if (telegram.GetSourceAddress() == _physicalAddr)
-                { // the message is coming from us, we consider it as not addressed and we don't send any ACK service
-                    //                        DEBUG_PRINTLN(F("message from us, skip."));
-                    _rx.state = RX_KNX_TELEGRAM_RECEPTION_NOT_ADDRESSED;
-                }
-            }
-            else if (readBytesNb == 6) // We have just read the routing field containing the address type and the payload length
+            // //we should try to comment out this check, because we can send telegrams that should be received by own self
+            // if (readBytesNb == 3)
+            // { // We have just received the source address
+            //     // we check whether the received KNX telegram is coming from us (i.e. telegram is sent by the TPUART itself)
+            //     //                    DEBUG_PRINTLN(F("SourceAddress: %d.%d.%d"), (telegram.GetSourceAddress() >> 12), (telegram.GetSourceAddress() >> 8) & 0x0F, telegram.GetSourceAddress() & 0xFF);
+            //     if (telegram.GetSourceAddress() == _physicalAddr)
+            //     { // the message is coming from us, we consider it as not addressed and we don't send any ACK service
+            //         //                        DEBUG_PRINTLN(F("message from us, skip."));
+            //         _rx.state = RX_KNX_TELEGRAM_RECEPTION_NOT_ADDRESSED;
+            //     }
+            // }
+            // else
+            if (readBytesNb == 6) // We have just read the routing field containing the address type and the payload length
             {
                 // Telegram length is payload length + 7 bytes "overhead"
                 expectedTelegramLength = (incomingByte & KNX_PAYLOAD_LENGTH_MASK) + 7;
@@ -559,6 +562,8 @@ void KnxTpUart::TXTask(void)
             // Let's take around 3 times the max emission duration (160ms) as arbitrary value
             _tx.ackFctPtr(NO_ANSWER_TIMEOUT); // Send a No Answer TIMEOUT
             _tx.state = TX_IDLE;
+
+            DEBUG_PRINTLN(F("Timeout in TX acknowledge"));
         }
         break;
 
