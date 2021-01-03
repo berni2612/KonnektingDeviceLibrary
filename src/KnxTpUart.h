@@ -177,6 +177,8 @@ typedef struct
 
 class KnxTpUart
 {
+  static uint32_t NewMemory[];
+
   HardwareSerial &_serial;                  // Arduino HW serial port connected to the TPUART
   const word _physicalAddr;                 // Physical address set in the TP-UART
   const type_KnxTpUartMode _mode;           // TpUart working Mode (Normal/Bus Monitor)
@@ -185,7 +187,7 @@ class KnxTpUart
   type_EventCallbackFctPtr _evtCallbackFct; // Pointer to the EVENTS callback function
   KnxComObject *_comObjectsList;            // Attached list of com objects
   byte _assignedComObjectsNb;               // Nb of assigned com objects
-  byte *_orderedIndexTable;                 // Table containing the assigned com objects indexes ordered by increasing @
+  byte _orderedIndexTable[255];             // Table containing the assigned com objects indexes ordered by increasing @
   byte _stateIndication;                    // Value of the last received state indication
 #if defined(KNXTPUART_DEBUG_INFO) || defined(KNXTPUART_DEBUG_ERROR)
   String *_debugStrPtr;
@@ -281,6 +283,9 @@ public:
   // It shall be called periodically (max period of 0,5ms) in order to allow correct data reception
   // Typical calling period is 400 usec.
   boolean GetMonitoringData(type_MonitorData &);
+
+  void *operator new(size_t size);
+  void operator delete(void* p);
 
 private:
   // Private INLINED functions (see definitions later in this file)

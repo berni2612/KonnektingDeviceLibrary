@@ -156,9 +156,6 @@ void KnxDevice::task(void)
         {
             if (_txActionList.pop(action))
             { // Data to be transmitted
-
-                DEBUG_PRINTLN("Pop action: %d", action.command);
-
                 KnxComObject *comObj = (action.index == 255 ? &_progComObj : &_comObjectsList[action.index]);
 
                 switch (action.command)
@@ -194,11 +191,11 @@ void KnxDevice::task(void)
 
                     if ((comObj->getLength()) <= 2)
                     {
-                        comObj->updateValue(action.byteValue);
+                        comObj->updateValue(action.value[0]);
                     }
                     else
                     {
-                        comObj->updateValue(action.valuePtr);
+                        comObj->updateValue(action.value);
                     }
                     // transmit the value through KNX network only if the Com Object has transmit attribute
                     if ((comObj->getIndicator()) & KNX_COM_OBJ_T_INDICATOR)
@@ -210,14 +207,10 @@ void KnxDevice::task(void)
                         if (_tpuart->SendTelegram(_txTelegram) == KNX_TPUART_OK)
                         {
                             _state = TX_ONGOING;
-                            if (comObj->getLength() > 2)
-                                free(action.valuePtr);
                         }
                         else
                             _txActionList.append(action); // re try action
                     }
-                    else if (comObj->getLength() > 2)
-                        free(action.valuePtr);
                     break;
 
                 default:
@@ -296,7 +289,6 @@ template <typename T>
 e_KnxDeviceStatus KnxDevice::write(byte objectIndex, T value)
 {
     type_tx_action action;
-    byte *destValue;
 
     KnxComObject *comObj = (objectIndex == 255 ? &_progComObj : &_comObjectsList[objectIndex]);
     if (!comObj->isActive())
@@ -306,18 +298,12 @@ e_KnxDeviceStatus KnxDevice::write(byte objectIndex, T value)
     byte length = comObj->getLength();
 
     if (length <= 2)
-        action.byteValue = (byte)value; // short object case
+        action.value[0] = (byte)value; // short object case
     else
-    {                                           // long object case, let's try to translate value to the com object DPT
-        destValue = (byte *)malloc(length - 1); // allocate the memory for DPT
-        e_KnxDeviceStatus status = ConvertToDpt(value, destValue, pgm_read_byte(&KnxDptToFormat[comObj->getDptId()]));
-        if (status) // translation error
-        {
-            free(destValue);
+    { // long object case, let's try to translate value to the com object DPT
+        e_KnxDeviceStatus status = ConvertToDpt(value, action.value, pgm_read_byte(&KnxDptToFormat[comObj->getDptId()]));
+        if (status)        // translation error
             return status; // we cannot convert, we stop here
-        }
-        else
-            action.valuePtr = destValue;
     }
     // add WRITE action in the TX action queue
     action.command = KNX_WRITE_REQUEST;
@@ -365,15 +351,8 @@ e_KnxDeviceStatus KnxDevice::write(byte objectIndex, byte valuePtr[])
         action.command = KNX_WRITE_REQUEST;
         action.index = objectIndex;
 
-        // allocate the memory for long value
-        byte *dptValue = (byte *)malloc(length - 1);
-
         for (byte i = 0; i < length - 1; i++)
-        {
-            dptValue[i] = valuePtr[i]; // copy value
-                                       //            DEBUG_PRINTLN(F("dptValue[%d]=0x%02x == valuePtr[%d]=0x%02x"), i, dptValue[i], i, valuePtr[i]);
-        }
-        action.valuePtr = (byte *)dptValue;
+            action.value[i] = valuePtr[i]; // copy value
 
         // bis hier hin alles okay
         _txActionList.append(action);

@@ -57,6 +57,8 @@ const char KnxTpUart::_debugInfoText[] = "KNXTPUART INFO: ";
 const char KnxTpUart::_debugErrorText[] = "KNXTPUART ERROR: ";
 #endif
 
+uint32_t KnxTpUart::NewMemory[((sizeof(KnxTpUart) - 1) / sizeof(uint32_t)) + 1];
+
 // Constructor
 
 //KnxTpUart::KnxTpUart(HardwareSerial& serial, word physicalAddr, type_KnxTpUartMode mode)
@@ -75,7 +77,6 @@ KnxTpUart::KnxTpUart(HardwareSerial &serial, word physicalAddr, type_KnxTpUartMo
     _evtCallbackFct = NULL;
     _comObjectsList = NULL;
     _assignedComObjectsNb = 0;
-    _orderedIndexTable = NULL;
     _stateIndication = 0;
 #if defined(KNXTPUART_DEBUG_INFO) || defined(KNXTPUART_DEBUG_ERROR)
     _debugStrPtr = NULL;
@@ -86,8 +87,6 @@ KnxTpUart::KnxTpUart(HardwareSerial &serial, word physicalAddr, type_KnxTpUartMo
 
 KnxTpUart::~KnxTpUart()
 {
-    if (_orderedIndexTable)
-        free(_orderedIndexTable);
     // close the serial communication if opened
     if ((_rx.state > RX_RESET) || (_tx.state > TX_RESET))
     {
@@ -169,13 +168,8 @@ byte KnxTpUart::AttachComObjectsList(KnxComObject comObjectsList[], byte listSiz
     if ((_rx.state != RX_INIT) || (_tx.state != TX_INIT))
         return KNX_TPUART_ERROR_NOT_INIT_STATE;
 
-    if (_orderedIndexTable)
-    { // a list is already attached, we detach it
-        free(_orderedIndexTable);
-        _orderedIndexTable = NULL;
-        _comObjectsList = NULL;
-        _assignedComObjectsNb = 0;
-    }
+    _comObjectsList = NULL;
+    _assignedComObjectsNb = 0;
     if ((!comObjectsList) || (!listSize))
     {
         DEBUG_PRINTLN(F("AttachComObjectsList : warning : empty object list!\n"));
@@ -218,7 +212,6 @@ byte KnxTpUart::AttachComObjectsList(KnxComObject comObjectsList[], byte listSiz
     _comObjectsList = comObjectsList;
 
     // Creation of the ordered index table
-    _orderedIndexTable = (byte *)malloc(_assignedComObjectsNb);
     word minMin = 0x0000;   // minimum min value searched
     word foundMin = 0xFFFF; // min value found so far
     for (byte i = 0; i < _assignedComObjectsNb; i++)
@@ -637,6 +630,18 @@ boolean KnxTpUart::GetMonitoringData(type_MonitorData &data)
         return true;
     }
     return false; // No data received
+}
+
+void *KnxTpUart::operator new(size_t size)
+{
+    if (size <= sizeof(NewMemory))
+        return NewMemory;
+    return NULL;
+}
+
+void KnxTpUart::operator delete(void *p)
+{
+    // nothing to do
 }
 
 /**
