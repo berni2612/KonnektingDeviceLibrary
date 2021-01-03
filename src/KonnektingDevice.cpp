@@ -45,7 +45,6 @@
  * A release-version of your development MUST NOT contain "#define DEBUG" ...
  */
 
-
 #include "Arduino.h"
 #include "DebugUtil.h"
 #include "KnxDevice.h"
@@ -407,7 +406,7 @@ void KonnektingDevice::toggleProgState()
     _lastProgbtn = millis();
 #endif
 
-    setProgState(!_progState); // toggle and set
+    setProgState(digitalRead(_progButton)); // toggle and set
     if (_rebootRequired)
     {
         DEBUG_PRINTLN(F("found rebootRequired flag, triggering reboot"));
