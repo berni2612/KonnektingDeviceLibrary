@@ -31,9 +31,10 @@
 #include "Arduino.h"
 #include "KnxTelegram.h"
 #include "KnxComObject.h"
-#include "RingBuff.h"
 #include "KnxTpUart.h"
 #include "KonnektingDevice.h"
+
+#include <Queue.h>
 
 // !!!!!!!!!!!!!!! FLAG OPTIONS !!!!!!!!!!!!!!!!!
 // DEBUG :
@@ -127,7 +128,8 @@ class KnxDevice
    KnxTpUart *_tpuart;
 
    // Queue of transmit actions to be performed
-   RingBuff<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
+  //  RingBuff<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
+   Queue<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
 
    // True when all the Com Object with Init attr have been initialized
    bool _initCompleted;
@@ -216,12 +218,6 @@ public:
      * NB : the function is asynchroneous, the update completion is notified by the knxEvents() callback
      */
    void update(byte objectIndex);
-
-   /**
-     * TODO document me
-     * @return 
-     */
-   bool isActive(void) const;
 
    /*
      * Overwrite the address of an attache Com Object

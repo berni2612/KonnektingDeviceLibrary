@@ -43,7 +43,6 @@ KnxDevice::KnxDevice()
 {
     _state = INIT;
     _tpuart = NULL;
-    _txActionList = RingBuff<type_tx_action, ACTIONS_QUEUE_SIZE>();
     _initCompleted = false;
     _initIndex = 0;
     _rxTelegram = NULL;
@@ -63,6 +62,8 @@ int KnxDevice::getNumberOfComObjects()
 
 e_KnxDeviceStatus KnxDevice::begin(HardwareSerial &serial, word physicalAddr)
 {
+    _txActionList.init();
+
     delete _tpuart; // always safe to delete null ptr
     _tpuart = new KnxTpUart(serial, physicalAddr, NORMAL);
     _rxTelegram = &_tpuart->GetReceivedTelegram();
@@ -95,8 +96,6 @@ void KnxDevice::end()
     type_tx_action action;
 
     _state = INIT;
-    while (_txActionList.pop(action))
-        ; // empty ring buffer
     _initCompleted = false;
     _initIndex = 0;
     _rxTelegram = NULL;
@@ -154,7 +153,7 @@ void KnxDevice::task(void)
         // STEP 3 : Send KNX messages following TX actions
         if (_state == IDLE)
         {
-            if (_txActionList.pop(action))
+            if (_txActionList.receive(action, 0))
             { // Data to be transmitted
                 KnxComObject *comObj = (action.index == 255 ? &_progComObj : &_comObjectsList[action.index]);
 
@@ -171,7 +170,7 @@ void KnxDevice::task(void)
                     if (_tpuart->SendTelegram(_txTelegram) == KNX_TPUART_OK)
                         _state = TX_ONGOING;
                     else
-                        _txActionList.append(action); // re try action
+                        _txActionList.append(action, 0); // re try action
 
                     break;
 
@@ -183,7 +182,7 @@ void KnxDevice::task(void)
                     if (_tpuart->SendTelegram(_txTelegram) == KNX_TPUART_OK)
                         _state = TX_ONGOING;
                     else
-                        _txActionList.append(action); // re try action
+                        _txActionList.append(action, 0); // re try action
                     break;
 
                 case KNX_WRITE_REQUEST: // a write operation of a Com Object on the KNX network is required
@@ -382,20 +381,6 @@ void KnxDevice::update(byte objectIndex)
     action.command = KNX_READ_REQUEST;
     action.index = objectIndex;
     _txActionList.append(action);
-}
-
-/**
- *  The function returns true if there is rx/tx activity ongoing, else false
- */
-bool KnxDevice::isActive() const
-{
-    if (_tpuart->IsActive())
-        return true; // TPUART is active
-    if (_state == TX_ONGOING)
-        return true; // the Device is sending a request
-    if (_txActionList.getItemCount())
-        return true; // there is at least one tx action in the queue
-    return false;
 }
 
 /**
