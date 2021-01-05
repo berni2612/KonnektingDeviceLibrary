@@ -24,7 +24,7 @@
 #define KONNEKTING_h
 
 #define KONNEKTING_DEVICE_LIBRARY_VERSION 10000
-#define KONNEKTING_DEVICE_LIBRARY_SNAPSHOT 
+#define KONNEKTING_DEVICE_LIBRARY_SNAPSHOT
 #define KONNEKTING_1_0_0_beta4b
 
 #include <Arduino.h>
@@ -42,33 +42,33 @@
 
 #define WRITEMEM
 
-#define EEPROM_DEVICE_FLAGS          0  ///< EEPROM index for device flags
-#define EEPROM_INDIVIDUALADDRESS_HI  1  ///< EEPROM index for IA, high byte
-#define EEPROM_INDIVIDUALADDRESS_LO  2  ///< EEPROM index for IA, low byte
-#define EEPROM_COMOBJECTTABLE_START 10  ///< EEPROM index start of comobj table
+#define EEPROM_DEVICE_FLAGS 0          ///< EEPROM index for device flags
+#define EEPROM_INDIVIDUALADDRESS_HI 1  ///< EEPROM index for IA, high byte
+#define EEPROM_INDIVIDUALADDRESS_LO 2  ///< EEPROM index for IA, low byte
+#define EEPROM_COMOBJECTTABLE_START 10 ///< EEPROM index start of comobj table
 
 #define PROTOCOLVERSION 0
 
-#define MSGTYPE_ACK                         0 ///< Message Type: ACK 0x00
-#define MSGTYPE_READ_DEVICE_INFO            1 ///< Message Type: Read Device Information 0x01
-#define MSGTYPE_ANSWER_DEVICE_INFO          2 ///< Message Type: Answer Device Information 0x02
-#define MSGTYPE_RESTART                     9 ///< Message Type: Restart 0x09
+#define MSGTYPE_ACK 0                ///< Message Type: ACK 0x00
+#define MSGTYPE_READ_DEVICE_INFO 1   ///< Message Type: Read Device Information 0x01
+#define MSGTYPE_ANSWER_DEVICE_INFO 2 ///< Message Type: Answer Device Information 0x02
+#define MSGTYPE_RESTART 9            ///< Message Type: Restart 0x09
 
-#define MSGTYPE_WRITE_PROGRAMMING_MODE      10 // 0x0A
-#define MSGTYPE_READ_PROGRAMMING_MODE       11 // 0x0B
-#define MSGTYPE_ANSWER_PROGRAMMING_MODE     12 // 0x0C
+#define MSGTYPE_WRITE_PROGRAMMING_MODE 10  // 0x0A
+#define MSGTYPE_READ_PROGRAMMING_MODE 11   // 0x0B
+#define MSGTYPE_ANSWER_PROGRAMMING_MODE 12 // 0x0C
 
-#define MSGTYPE_WRITE_INDIVIDUAL_ADDRESS    20 // 0x14
-#define MSGTYPE_READ_INDIVIDUAL_ADDRESS     21 // 0x15
-#define MSGTYPE_ANSWER_INDIVIDUAL_ADDRESS   22 // 0x16
+#define MSGTYPE_WRITE_INDIVIDUAL_ADDRESS 20  // 0x14
+#define MSGTYPE_READ_INDIVIDUAL_ADDRESS 21   // 0x15
+#define MSGTYPE_ANSWER_INDIVIDUAL_ADDRESS 22 // 0x16
 
-#define MSGTYPE_WRITE_PARAMETER             30 // 0x1E
-#define MSGTYPE_READ_PARAMETER              31 // 0x1F
-#define MSGTYPE_ANSWER_PARAMETER            32 // 0x20
+#define MSGTYPE_WRITE_PARAMETER 30  // 0x1E
+#define MSGTYPE_READ_PARAMETER 31   // 0x1F
+#define MSGTYPE_ANSWER_PARAMETER 32 // 0x20
 
-#define MSGTYPE_WRITE_COM_OBJECT            40 // 0x28
-#define MSGTYPE_READ_COM_OBJECT             41 // 0x29
-#define MSGTYPE_ANSWER_COM_OBJECT           42 // 0x2A
+#define MSGTYPE_WRITE_COM_OBJECT 40  // 0x28
+#define MSGTYPE_READ_COM_OBJECT 41   // 0x29
+#define MSGTYPE_ANSWER_COM_OBJECT 42 // 0x2A
 
 #define PARAM_INT8 1
 #define PARAM_UINT8 1
@@ -89,7 +89,6 @@
 #define PARAM_RAW11 11
 #define PARAM_STRING11 11
 
-
 // process intercepted knxEvents-calls with this method
 extern void konnektingKnxEvents(byte index);
 
@@ -99,10 +98,13 @@ extern void konnektingKnxEvents(byte index);
  */
 
 /**************************************************************************/
-class KonnektingDevice {
+class KonnektingDevice
+{
+public:
     static byte _paramSizeList[];
-    static const int _numberOfParams;
+    static int _numberOfParams;
 
+private:
     byte (*_eepromReadFunc)(int);
     void (*_eepromWriteFunc)(int, byte);
     void (*_eepromUpdateFunc)(int, byte);
@@ -112,32 +114,31 @@ class KonnektingDevice {
     // Constructor, Destructor
     KonnektingDevice(); // private constructor (singleton design pattern)
 
-    ~KonnektingDevice() {
-    } // private destructor (singleton design pattern)
-    KonnektingDevice(KonnektingDevice&); // private copy constructor (singleton design pattern) 
+    ~KonnektingDevice()
+    {
+    }                                     // private destructor (singleton design pattern)
+    KonnektingDevice(KonnektingDevice &); // private copy constructor (singleton design pattern)
 
 public:
     static KonnektingDevice Konnekting;
 
-    void setMemoryReadFunc(byte(*func)(int));
+    void setMemoryReadFunc(byte (*func)(int));
     void setMemoryWriteFunc(void (*func)(int, byte));
     void setMemoryUpdateFunc(void (*func)(int, byte));
     void setMemoryCommitFunc(void (*func)(void));
 
-    void init(HardwareSerial& serial, 
-                void (*progIndicatorFunc)(bool), 
-                word manufacturerID, 
-                byte deviceID, 
-                byte revisionID
-                );
+    void init(HardwareSerial &serial,
+              void (*progIndicatorFunc)(bool),
+              word manufacturerID,
+              byte deviceID,
+              byte revisionID);
 
-    void init(HardwareSerial& serial,
-            int progButtonPin,
-            int progLedPin,
-            word manufacturerID,
-            byte deviceID,
-            byte revisionID
-            );
+    void init(HardwareSerial &serial,
+              int progButtonPin,
+              int progLedPin,
+              word manufacturerID,
+              byte deviceID,
+              byte revisionID);
 
     // needs to be public too, due to ISR handler mechanism :-(
     bool internalKnxEvents(byte index);
@@ -145,10 +146,8 @@ public:
     // must be public to be accessible from KonnektingProgButtonPressed()
     void toggleProgState();
 
-    
-
     byte getParamSize(int index);
-    void getParamValue(int index, byte* value);
+    void getParamValue(int index, byte *value);
 
     uint8_t getUINT8Param(int index);
     int8_t getINT8Param(int index);
@@ -173,7 +172,6 @@ public:
     int getFreeEepromOffset();
 
 private:
-
     bool _rebootRequired = false;
     bool _initialized = false;
 #ifdef REBOOT_BUTTON
@@ -189,51 +187,47 @@ private:
 
     int _paramTableStartindex;
 
-
     int _progLED;
     int _progButton; // (->interrupt)
     void setProgLed(bool state);
 
     bool _progState;
-    
+
     KnxComObject createProgComObject();
 
-    void internalInit(HardwareSerial& serial,
-            word manufacturerID,
-            byte deviceID,
-            byte revisionID
-            );
+    void internalInit(HardwareSerial &serial,
+                      word manufacturerID,
+                      byte deviceID,
+                      byte revisionID);
     int calcParamSkipBytes(int index);
 
     bool isMatchingIA(byte hi, byte lo);
 
     void reboot();
 
-    // prog methods    
+    // prog methods
     void sendAck(byte errorcode, int indexinformation);
-    void handleMsgReadDeviceInfo(byte* msg);
-    void handleMsgRestart(byte* msg);
-    void handleMsgWriteProgrammingMode(byte* msg);
-    void handleMsgReadProgrammingMode(byte* msg);
-    void handleMsgWriteIndividualAddress(byte* msg);
-    void handleMsgReadIndividualAddress(byte* msg);
-    void handleMsgWriteParameter(byte* msg);
-    void handleMsgReadParameter(byte* msg);
-    void handleMsgWriteComObject(byte* msg);
-    void handleMsgReadComObject(byte* msg);
+    void handleMsgReadDeviceInfo(byte *msg);
+    void handleMsgRestart(byte *msg);
+    void handleMsgWriteProgrammingMode(byte *msg);
+    void handleMsgReadProgrammingMode(byte *msg);
+    void handleMsgWriteIndividualAddress(byte *msg);
+    void handleMsgReadIndividualAddress(byte *msg);
+    void handleMsgWriteParameter(byte *msg);
+    void handleMsgReadParameter(byte *msg);
+    void handleMsgWriteComObject(byte *msg);
+    void handleMsgReadComObject(byte *msg);
 
     int memoryRead(int index);
     void memoryWrite(int index, byte date);
     void memoryUpdate(int index, byte date);
     void memoryCommit();
-
 };
 
 // not part of Konnekting class
 void KonnektingProgButtonPressed();
 
 // Reference to the KnxDevice unique instance
-extern KonnektingDevice& Konnekting;
+extern KonnektingDevice &Konnekting;
 
 #endif // KONNEKTING_h
-

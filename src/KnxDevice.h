@@ -110,15 +110,16 @@ e_KnxDeviceStatus ConvertToDpt(T value, byte dpt[], byte dptFormat);
 
 class KnxDevice
 {
-
+public:
    // List of Com Objects attached to the KNX Device
    // The definition shall be provided by the end-user
    static KnxComObject _comObjectsList[];
 
    // Nb of attached Com Objects
    // The value shall be provided by the end-user
-   static const byte _numberOfComObjects;
+   static byte _numberOfComObjects;
 
+private:
    KnxComObject _progComObj = KnxComObject(KNX_DPT_60000_60000 /* KNX PROGRAM */, KNX_COM_OBJ_C_W_U_T_INDICATOR);
 
    // Current KnxDevice state
@@ -128,7 +129,7 @@ class KnxDevice
    KnxTpUart *_tpuart;
 
    // Queue of transmit actions to be performed
-  //  RingBuff<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
+   //  RingBuff<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
    Queue<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
 
    // True when all the Com Object with Init attr have been initialized

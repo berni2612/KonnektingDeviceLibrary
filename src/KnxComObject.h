@@ -104,6 +104,7 @@ class KnxComObject
 
 public:
     // Constructor :
+    KnxComObject();
     KnxComObject(KnxDpt dptId, byte indicator);
 
     bool isActive(void);

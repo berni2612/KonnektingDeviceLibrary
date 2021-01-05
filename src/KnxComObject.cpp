@@ -38,6 +38,11 @@ byte calcLength(KnxDpt dptId)
     return (pgm_read_byte(&KnxDptFormatToLength[pgm_read_byte(&KnxDptToFormat[dptId])]) / 8) + 1;
 }
 
+KnxComObject::KnxComObject()
+    : KnxComObject(KNX_DPT_1_000, 0)
+{
+}
+
 /**
  * Contructor
  * @param dptId
