@@ -154,9 +154,9 @@ void KnxDevice::task(void)
         // STEP 3 : Send KNX messages following TX actions
         if (_state == IDLE)
         {
-            auto received = _txActionListHighPriority.receive(action, 0);
-            if (received == false)
-                received = _txActionListLowPriority.receive(action, 0);
+            uint8_t received = _txActionListHighPriority.receive(action, 0);
+            if (received == 0)
+                received = _txActionListLowPriority.receive(action, 0) << 1;
             if (received)
             { // Data to be transmitted
                 KnxComObject *comObj = (action.index == 255 ? &_progComObj : &_comObjectsList[action.index]);
@@ -205,6 +205,7 @@ void KnxDevice::task(void)
                     {
                         comObj->copyAttributes(_txTelegram);
                         comObj->copyValue(_txTelegram);
+                        _txTelegram.ChangePriority(received == 1 ? KNX_PRIORITY_HIGH_VALUE : KNX_PRIORITY_NORMAL_VALUE);
                         _txTelegram.SetCommand(KNX_COMMAND_VALUE_WRITE);
                         _txTelegram.UpdateChecksum();
                         if (_tpuart->SendTelegram(_txTelegram) == KNX_TPUART_OK)
