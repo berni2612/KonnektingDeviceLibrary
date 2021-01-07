@@ -160,8 +160,10 @@ public:
 
     String getSTRING11Param(int index);
 
-    bool isActive();
+    bool isActive();    
     bool isFactorySetting();
+
+    bool earlyIsFactorySetting();
 
     bool isProgState();
 

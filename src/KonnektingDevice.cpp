@@ -291,6 +291,11 @@ bool KonnektingDevice::isFactorySetting()
     return isFactory;
 }
 
+bool KonnektingDevice::earlyIsFactorySetting() 
+{
+    return getUINT8Param(EEPROM_DEVICE_FLAGS) == 0xFF;
+}
+
 /**************************************************************************/
 /*!
  *  @brief  Bytes to skip when reading/writing in param-table
