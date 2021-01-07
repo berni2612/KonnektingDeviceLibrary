@@ -34,7 +34,7 @@
 #include "KnxTpUart.h"
 #include "KonnektingDevice.h"
 
-#include <Queue.h>
+#include <BlockingQueue.h>
 
 // !!!!!!!!!!!!!!! FLAG OPTIONS !!!!!!!!!!!!!!!!!
 // DEBUG :
@@ -130,7 +130,7 @@ private:
 
    // Queue of transmit actions to be performed
    //  RingBuff<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
-   Queue<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
+   BlockingQueue<type_tx_action, ACTIONS_QUEUE_SIZE> _txActionList;
 
    // True when all the Com Object with Init attr have been initialized
    bool _initCompleted;
