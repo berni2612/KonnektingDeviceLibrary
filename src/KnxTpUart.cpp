@@ -369,7 +369,7 @@ void KnxTpUart::RXTask(void)
         incomingByte = (byte)(_serial.read());
         lastByteRxTimeMillis = (word)millis();
 
-        DEBUG_PRINTLN(F("RX State: %d"), _rx.state);
+        // DEBUG_PRINTLN(F("RX State: %d"), _rx.state);
 
         switch (_rx.state)
         {

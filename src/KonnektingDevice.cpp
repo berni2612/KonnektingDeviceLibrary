@@ -291,9 +291,12 @@ bool KonnektingDevice::isFactorySetting()
     return isFactory;
 }
 
-bool KonnektingDevice::earlyIsFactorySetting() 
+void KonnektingDevice::earlyInit() 
 {
-    return getUINT8Param(EEPROM_DEVICE_FLAGS) == 0xFF;
+    // calc  of parameter table in eeprom --> depends on number of com objects
+    _paramTableStartindex = EEPROM_COMOBJECTTABLE_START + (Knx.getNumberOfComObjects() * 3);
+
+    _deviceFlags = memoryRead(EEPROM_DEVICE_FLAGS);
 }
 
 /**************************************************************************/
@@ -589,7 +592,7 @@ bool KonnektingDevice::internalKnxEvents(byte index)
 
         byte buffer[14];
         Knx.read(PROGCOMOBJ_INDEX, buffer);
-#ifdef DEBUG_PROTOCOL
+#if defined DEBUG_PROTOCOL && 0
         for (int i = 0; i < 14; i++)
         {
             DEBUG_PRINTLN(F("buffer[%d]\thex=0x%02x bin=" BYTETOBINARYPATTERN), i, buffer[i], BYTETOBINARY(buffer[i]));

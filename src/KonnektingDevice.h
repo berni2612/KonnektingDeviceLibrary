@@ -163,7 +163,7 @@ public:
     bool isActive();    
     bool isFactorySetting();
 
-    bool earlyIsFactorySetting();
+    void earlyInit();
 
     bool isProgState();
 
